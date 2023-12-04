@@ -1,6 +1,7 @@
 #include "main.h"
 #include <unistd.h>
 #include <stdarg.h>
+#include <stdint.h>
 /**
  * _printf - a simple and custom printf function with limited format specifiers
  * flush_buffer - a function that flushes the buffer when its full
@@ -61,6 +62,16 @@ void process_format(const char *format, va_list args, char buffer[],
 					buffer[(*buff_ind)++] = *str;
 					(*printed_chars)++;
 				}
+			}
+			else if (format[i] == 'p')
+			{
+				void *ptr = va_arg(args, void *);
+
+				buffer[(*buff_ind)++] = '0';
+				buffer[(*buff_ind)++] = 'x';
+
+				int_to_base((uintptr_t)ptr, buffer, buff_ind, 16, 1);
+				(*printed_chars) += 2;
 			}
 			else if (format[i] == '%')
 			{
