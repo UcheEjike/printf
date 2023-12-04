@@ -1,5 +1,4 @@
 #include "main.h"
-#include "funcs1.c"
 #include <unistd.h>
 #include <stdarg.h>
 /**
