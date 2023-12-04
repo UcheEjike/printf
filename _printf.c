@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <stdarg.h>
 #include <stdint.h>
+#define BUFF_SIZE 1024
 /**
  * _printf - a simple and custom printf function with limited format specifiers
  * flush_buffer - a function that flushes the buffer when its full
@@ -27,7 +28,6 @@ int _printf(const char *format, ...)
 
 	return (printed_chars);
 }
-
 int print_binary(va_list args)
 {
     unsigned int num = va_arg(args, unsigned int);
@@ -98,10 +98,13 @@ void process_format(const char *format, va_list args, char buffer[],
 				buffer[(*buff_ind)++] = '%';
 				(*printed_chars)++;
 			}
-		}
+			else if (format[i] == 'b')
+            		{
+             			unsigned int value = va_arg(args, unsigned int);
+                		*printed_chars += print_binary(args);
+          		}
 
 		else
-
 		{
 			buffer[(*buff_ind)++] = format[i];
 			if (*buff_ind == BUFF_SIZE)
