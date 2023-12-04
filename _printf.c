@@ -28,6 +28,26 @@ int _printf(const char *format, ...)
 	return (printed_chars);
 }
 
+int print_binary(va_list args)
+{
+    unsigned int num = va_arg(args, unsigned int);
+    unsigned int mask = 0;
+
+    int count = 0;
+
+    if (num == 0)
+        return (_putchar('0'));
+
+    for (mask = 1 << 31; mask > 0; mask >>= 1)
+    {
+        if (num & mask)
+            count += _putchar('1');
+        else
+            count += _putchar('0');
+    }
+
+    return (count);
+}
 void process_format(const char *format, va_list args, char buffer[],
 		int *buff_ind, int *printed_chars)
 {
