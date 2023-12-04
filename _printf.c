@@ -3,6 +3,7 @@
 #include <stdarg.h>
 #include <stdint.h>
 #define BUFF_SIZE 1024
+
 /**
  * _printf - a simple and custom printf function with limited format specifiers
  * flush_buffer - a function that flushes the buffer when its full
