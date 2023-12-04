@@ -9,132 +9,43 @@
  *
  * Return: Number of characters to be printed
  */
-
 int _printf(const char *format, ...)
 {
-	va_list args;
-	int printed_chars = 0;
-	int buff_ind = 0;
-	char buffer[BUFF_SIZE];
-
-	if (format == NULL)
-		return (-1);
-
-	va_start(args, format);
-	process_format(format, args, buffer, &buff_ind, &printed_chars);
-	flush_buffer(buffer, &buff_ind);
-	va_end(args);
-
-	return (printed_chars);
-}
-void process_format(const char *format, va_list args, char buffer[],
-		int *buff_ind, int *printed_chars)
-{
-	int i;
-
-	for (i = 0; format[i] != '\0'; i++)
-	{
-		if (format[i] == '%')
-		{
-			i++;
-			if (format[i] == 'd' || format[i] == 'i')
-			{
-				int value = va_arg(args, int);
-
-				int_to_str(value, buffer, buff_ind);
-				(*printed_chars)++;
-			}
-			else if (format[i] == 'c')
-			{
-				char ch = va_arg(args, int);
-
-				buffer[(*buff_ind)++] = ch;
-
-				(*printed_chars)++;
-			}
-			else if (format[i] == 's')
-			{
-				const char *str = va_arg(args, const char *);
-
-				for (; *str != '\0'; str++)
-				{
-					buffer[(*buff_ind)++] = *str;
-					(*printed_chars)++;
-				}
-			}
-			else if (format[i] == 'p')
-			{
-				void *ptr = va_arg(args, void *);
-
-				buffer[(*buff_ind)++] = '0';
-				buffer[(*buff_ind)++] = 'x';
-
-				int_to_base((uintptr_t)ptr, buffer, buff_ind, 16, 1);
-				(*printed_chars) += 2;
-			}
-			else if (format[i] == '%')
-			{
-				buffer[(*buff_ind)++] = '%';
-				(*printed_chars)++;
-			}
-		}
-
-		else
-
-		{
-			buffer[(*buff_ind)++] = format[i];
-			if (*buff_ind == BUFF_SIZE)
-			{
-				flush_buffer(buffer, buff_ind);
-				(*printed_chars)++;
-			}
-		}
-	}
-}
-
-
-/***************** A function to flush the buffer ***********************/
-void flush_buffer(char buffer[], int *buff_ind)
-{
-	if (*buff_ind > 0)
-	{
-		write(1, buffer, *buff_ind);
-		*buff_ind = 0;
-	}
-}
-
-
-/****************** A function to convert the integers to string *************/
-
-void int_to_str(int value, char buffer[], int *buff_ind)
-{
-	int i = 0;
-	int j;
-
-	if (value < 0)
-	{
-		buffer[(*buff_ind)++] = '-';
-		value = -value;
-	}
-
-	do {
-		int digit = value % 10;
-
-		buffer[(*buff_ind) + i] = '0' + digit;
-
-		i++;
-		value /= 10;
-	} while (value > 0);
-
-
-	for (j = 0; j < i / 2; j++)
-	{
-		char temp = buffer[(*buff_ind) + j];
-
-		buffer[(*buff_ind) + j] = buffer[(*buff_ind) + i - j - 1];
-
-		buffer[(*buff_ind) + i - j - 1] = temp;
-	}
-
-	*buff_ind += i;
+va_list args;
+    va_start(args, format);
+    
+    int count = 0; // Pour compter le nombre de caractères imprimés
+    
+    while (*format != '\0') {
+        if (*format == '%') {
+            format++; // Passer au caractère suivant après '%'
+            if (*format == 'c') {
+                // Afficher un caractère
+                char c = va_arg(args, int); // Récupérer le caractère à afficher
+                putchar(c); // Imprimer le caractère sur stdout
+                count++;
+            } else if (*format == 's') {
+                // Afficher une chaîne de caractères
+                char *s = va_arg(args, char*); // Récupérer la chaîne à afficher
+                while (*s != '\0') {
+                    putchar(*s); // Imprimer chaque caractère de la chaîne sur stdout
+                    s++;
+                    count++;
+                }
+            } else if (*format == '%') {
+                // Afficher le caractère '%'
+                putchar('%'); // Imprimer le caractère '%' sur stdout
+                count++;
+            }
+        } else {
+            // Si le caractère n'est pas '%', l'imprimer tel quel
+            putchar(*format);
+            count++;
+        }
+        
+        format++; // Passer au caractère suivant dans la chaîne de format
+    }
+    
+    va_end(args);
+    return count; // Retourner le nombre total de caractères imprimés
 }
