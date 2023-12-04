@@ -15,5 +15,6 @@ void handle_u(unsigned int value, char buffer[], int *buff_ind);
 void handle_o(unsigned int value, char buffer[], int *buff_ind);
 void handle_x(unsigned int value, char buffer[], int *buff_ind);
 void handle_X(unsigned int value, char buffer[], int *buff_ind);
+void handle_S(char *str, char buffer[], int *buff_ind);
 
 #endif /* MAIN_H */
