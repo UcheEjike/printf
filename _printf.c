@@ -32,15 +32,45 @@ void process_format(const char *format, va_list args, char buffer[],
 		int *buff_ind, int *printed_chars)
 {
 	int i;
+	int plus_flag = 0;
+	int space_flag = 0;
+	int hash_flag = 0;
 
 	for (i = 0; format[i] != '\0'; i++)
 	{
 		if (format[i] == '%')
 		{
+			plus_flag = 0;
+			space_flag = 0;
+			hash_flag = 0;
+
 			i++;
+			while (format[i] == '+' || format[i] == ' ' || format[i] == '#')
+			{
+				if (format[i] == '+')
+					plus_flag = 1;
+				else if (format[i] == ' ')
+					space_flag = 1;
+				else if (format[i] == '#')
+					hash_flag = 1;
+				i++;
+			}
+
 			if (format[i] == 'd' || format[i] == 'i')
 			{
 				int value = va_arg(args, int);
+
+				if (plus_flag && value >= 0)
+					buffer[(*buff_ind)++] = '+';
+
+				else if (space_flag && value >= 0)
+					buffer[(*buff_ind)++] = ' ';
+
+				else if (hash_flag && value >= 0)
+				{
+					buffer[(*buff_ind)++] = '0';
+					hash_flag = 0;
+				}
 
 				int_to_str(value, buffer, buff_ind);
 				(*printed_chars)++;
@@ -63,6 +93,20 @@ void process_format(const char *format, va_list args, char buffer[],
 					(*printed_chars)++;
 				}
 			}
+			else if (format[i] == 'x' || format[i] == 'X')
+			{
+				unsigned int value = va_arg(args, unsigned int);
+
+				int hash_flag = 0;
+
+				if (i > 0 && format[i - 1] == '#')
+				{
+					hash_flag = 1;
+				}
+				int_to_base(value, buffer, buff_ind, 16, (format[i] == 'X'), hash_flag);
+				(*printed_chars)++;
+				}
+
 			else if (format[i] == 'p')
 			{
 				void *ptr = va_arg(args, void *);
@@ -70,15 +114,16 @@ void process_format(const char *format, va_list args, char buffer[],
 				buffer[(*buff_ind)++] = '0';
 				buffer[(*buff_ind)++] = 'x';
 
-				int_to_base((uintptr_t)ptr, buffer, buff_ind, 16, 1);
+				int_to_base((uintptr_t)ptr, buffer, buff_ind, 16, 1, 1);
 				(*printed_chars) += 2;
+			}
 			}
 			else if (format[i] == '%')
 			{
 				buffer[(*buff_ind)++] = '%';
 				(*printed_chars)++;
 			}
-		}
+
 
 		else
 
@@ -94,7 +139,14 @@ void process_format(const char *format, va_list args, char buffer[],
 }
 
 
+
 /***************** A function to flush the buffer ***********************/
+/**
+ * flush_buffer - A function that clears the buffer
+ * @buffer: an array of the buffer content
+ * @buff_ind: the index of each character of the array
+ */
+
 void flush_buffer(char buffer[], int *buff_ind)
 {
 	if (*buff_ind > 0)
@@ -106,7 +158,12 @@ void flush_buffer(char buffer[], int *buff_ind)
 
 
 /****************** A function to convert the integers to string *************/
-
+/**
+ * int_to_str - a function that converts integers to string
+ * @value: the value to be converted
+ * @buffer: an array of buffer
+ * @buff_ind: the index of each character of the array
+ */
 void int_to_str(int value, char buffer[], int *buff_ind)
 {
 	int i = 0;

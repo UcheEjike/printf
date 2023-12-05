@@ -9,7 +9,7 @@
 
 void handle_o(unsigned int value, char buffer[], int *buff_ind)
 {
-	int_to_base(value, buffer, buff_ind, 8, 0);
+	int_to_base(value, buffer, buff_ind, 8, 0, 1);
 }
 
 
@@ -23,7 +23,7 @@ void handle_o(unsigned int value, char buffer[], int *buff_ind)
 
 void handle_x(unsigned int value, char buffer[], int *buff_ind)
 {
-	int_to_base(value, buffer, buff_ind, 16, 0);
+	int_to_base(value, buffer, buff_ind, 16, 0, 1);
 }
 
 /***************** A function to handle Unsigned Upper Hexadecimal ********/
@@ -50,7 +50,7 @@ void handle_X(unsigned int value, char buffer[], int *buff_ind)
  */
 
 void int_to_base(unsigned int value, char buffer[], int *buff_ind, int base,
-int uppercase)
+int uppercase, int hash_flag)
 {
 	int i = 0;
 	int j;
@@ -65,6 +65,26 @@ int uppercase)
 		digits[14] = 'E';
 		digits[15] = 'F';
 	}
+	
+	
+	if (base == 16 && hash_flag && value != 0)
+	{
+		buffer[*buff_ind] = '0';
+		buffer[*buff_ind + 1] = (uppercase) ? 'X' : 'x';
+		*buff_ind += 2;
+	}
+	else if (base == 8 && hash_flag && value != 0)
+	{
+		buffer[*buff_ind] = '0';
+		*buff_ind += 1;
+	}
+	
+	if (value == 0)
+	{
+		buffer[*buff_ind] = '0';
+		(*buff_ind)++;
+	}
+
 
 	do {
 		int digit = value % base;
@@ -72,6 +92,12 @@ int uppercase)
 		buffer[*buff_ind + i] = digits[digit];
 		i++;
 	} while (value /= base);
+
+	if (base == 8 && i == 1 && buffer[*buff_ind] == '0')
+	{
+		buffer[*buff_ind + i] = '0';
+		i++;
+	}
 
 	for (j = 0; j < i / 2; j++)
 	{
