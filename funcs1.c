@@ -1,144 +1,154 @@
 #include "main.h"
-/******************* A function to handle unsigned Numbers in Octal ******/
+/******************* A function to handle unsigned Numbers *****************/
 /**
- * handle_o - handles unsigned octal conversion
- * @value: value to be converted
- * @buffer: value of buffer
- * @buff_ind: index of buffer
+ * print_unsigned - Prints an unsigned number
+ * @types: List of arguments
+ * @buffer: Buffer array to handle print
+ * @flags: calculates active flags
+ * @width: get width
+ * @precision: Precision Specification
+ * @size: Size specifier
+ * Return: Number of characters printed
  */
-
-void handle_o(unsigned int value, char buffer[], int *buff_ind)
+int print_unsigned(va_list types, char buffer[], int flags, int width,
+		int precision, int size)
 {
-	int_to_base(value, buffer, buff_ind, 8, 0, 1);
-}
+	int i = BUFF_SIZE - 2;
+	unsigned long int num = va_arg(types, unsigned long int);
 
+	num = convert_size_unsgnd(num, size);
 
-/************** A function to handle Unsigned Numbers in Hexadecimal******/
-/**
- * handle_x - handles unsigned hexadecimal
- * @value: value to be converted
- * @buffer: array of characters in the buffer
- * @buff_ind: index of each array character
- */
+	if (num == 0)
+		buffer[i--] = '0';
+	buffer[BUFF_SIZE - 1] = '\0';
 
-void handle_x(unsigned int value, char buffer[], int *buff_ind)
-{
-	int_to_base(value, buffer, buff_ind, 16, 0, 1);
-}
-
-/***************** A function to handle Unsigned Upper Hexadecimal ********/
-/**
- * handle_X - handles unsigned hexadecimal in uppercase
- * @value: value to be converted
- * @buffer: value of buffer
- * @buff_ind: index of buffer
- */
-
-void handle_X(unsigned int value, char buffer[], int *buff_ind)
-{
-	int_to_base_upper(value, buffer, buff_ind, 16);
-}
-
-/*************** A function to handle int to base conversion **************/
-/**
- * int_to_base - A function to handle int to base conversion
- * @value: value to be converted
- * @buffer: array of the buffer
- * @buff_ind: buffer index
- * @base: base to be converted into
- * @uppercase: checks if its in uppercase
- */
-
-void int_to_base(unsigned int value, char buffer[], int *buff_ind, int base,
-int uppercase, int hash_flag)
-{
-	int i = 0;
-	int j;
-	char digits[] = "0123456789abcdef";
-
-	if (uppercase)
+	while (num > 0)
 	{
-		digits[10] = 'A';
-		digits[11] = 'B';
-		digits[12] = 'C';
-		digits[13] = 'D';
-		digits[14] = 'E';
-		digits[15] = 'F';
+		buffer[i--] = (num % 10) + '0';
+		num /= 10;
 	}
+
+	i++;
+
+	return (write_unsgnd(0, i, buffer, flags, width, precision, size));
+}
+
+/**************A function to Print Unsigned Numbers in Octal *****************/
+/**
+ * print_octal - Prints an unsigned number in octal notation
+ * @types: Lists of arguments
+ * @buffer: Buffer array to handle print
+ * @flags: Calculates active flags
+ * @width: get width
+ * @precision: Precision specification
+ * @size: Size specifier
+ * Return: Number of characters printed
+ */
+int print_octal(va_list types, char buffer[], int flags, int width,
+		int precision, int size)
+{
+	int i = BUFF_SIZE - 2;
+	unsigned long int num = va_arg(types, unsigned long int);
+	unsigned long int init_num = num;
+
+	UNUSED(width);
+
+	num = convert_size_unsgnd(num, size);
+
+	if (num == 0)
+		buffer[i--] = (num % 8) + '0';
+
+	buffer[BUFF_SIZE - 1] = '\0';
+
+	while (num > 0)
+	{
+		buffer[i--] = (num % 8) + '0';
+		num /= 8;
+	}
+
+	if (flags & F_HASH && init_num != 0)
+		buffer[i--] = '0';
+
+	i++;
 	
-	
-	if (base == 16 && hash_flag && value != 0)
-	{
-		buffer[*buff_ind] = '0';
-		buffer[*buff_ind + 1] = (uppercase) ? 'X' : 'x';
-		*buff_ind += 2;
-	}
-	else if (base == 8 && hash_flag && value != 0)
-	{
-		buffer[*buff_ind] = '0';
-		*buff_ind += 1;
-	}
-	
-	if (value == 0)
-	{
-		buffer[*buff_ind] = '0';
-		(*buff_ind)++;
-	}
-
-
-	do {
-		int digit = value % base;
-
-		buffer[*buff_ind + i] = digits[digit];
-		i++;
-	} while (value /= base);
-
-	if (base == 8 && i == 1 && buffer[*buff_ind] == '0')
-	{
-		buffer[*buff_ind + i] = '0';
-		i++;
-	}
-
-	for (j = 0; j < i / 2; j++)
-	{
-		char temp = buffer[*buff_ind + j];
-
-		buffer[*buff_ind + j] = buffer[(*buff_ind) + i - j - 1];
-		buffer[*buff_ind + i - j - 1] = temp;
-	}
-
-	*buff_ind += i;
+	return (write_unsgnd(0, i, buffer, flags, width, precision, size));
 }
-/***************** A function to convert int to base in uppercase *********/
+
+/******************* A function to print Unsigned Numbers in Hexadecimal ******/
 /**
- * int_to_base_upper - converts int to base in uppercase
- * @value: value to be converted
- * @buffer: array of buffer
- * @buff_ind: index of each character in the array
- * @base: the base its converting into
+ * print_hexadecimal - Prints an unsigned number in hexadecimal notation
+ * @types: Lists of arguments
+ * @buffer: Buffer array to handle print
+ * @flags: calculats active flags
+ * @width: get width
+ * @precision: Precision specification
+ * @size: size specificier
+ * Return: Number of characters printed
  */
-
-void int_to_base_upper(unsigned int value, char buffer[], int *buff_ind,
-int base)
+int print_hexadecimal(va_list types, char buffer[], int flags, int width,
+		int precision, int size)
 {
-	int i = 0;
-	int j;
-	char digits[] = "0123456789ABCDEF";
+	return (print_hexa(types, "0123456789abcdef", buffer, flags, 'x', width,
+				precision, size));
+}
 
-	do {
-		int digit = value % base;
+/********** A function to Print Unsigned Number in Upper Hexadecimal ***********/
+/**
+ * print_hexa_upper - Prints an unsigned number in upper hexadecimal notation
+ * @types: Lists of arguments
+ * @buffer: Buffer of array to handle prints
+ * @flags: Calculates the active flags
+ * @width: get width
+ * @precision: Precision specification
+ * @size: size specifier
+ * Return: Number of characters printed
+ */
+int print_hexa_upper(va_list types, char buffer[], int flags, int width,
+		int precision, int size)
+{
+	return (print_hexa(types, "0123456789ABCDEF", buffer, flags, 'X', width,
+				precision, size));
+}
 
-		buffer[*buff_ind + i] = digits[digit];
-		i++;
-	} while (value /= base);
+/************ A function to Print Hex Number in Lower or Upper *****************/
+/**
+ * print_hexa - Prints a hexadecimal number in lower or upper
+ * @types: Lists of arguments
+ * @map_to: Array of values to map the number to
+ * @buffer: Buffer of array to handle print
+ * @flags: Calculates active flags
+ * @flag_ch: calculates the active flags
+ * @width: get width
+ * @precision: Precision specification
+ * @size: size specifier
+ * Return: Number of characters printed
+ */
+int print_hexa(va_list types, char map_to[], char buffer[], int flags,
+		char flag_ch, int width, int precision, int size)
+{
+	int i = BUFF_SIZE - 2;
+	unsigned long int num = va_arg(types, unsigned long int);
+	unsigned long int init_num = num;
 
-	for (j = 0; j < i / 2; j++)
+	UNUSED(width);
+
+	num = convert_size_unsgnd(num, size);
+
+	if (num == 0)
+		buffer[i--] = '0';
+	buffer[BUFF_SIZE - 1] = '\0';
+
+	while (num > 0)
 	{
-		char temp = buffer[*buff_ind + j];
-
-		buffer[*buff_ind + j] = buffer[*buff_ind + i - j - 1];
-		buffer[*buff_ind + i - j - 1] = temp;
+		buffer[i--] = map_to[num % 16];
+		num /= 16;
 	}
 
-	*buff_ind += i;
+	if (flags & F_HASH && init_num != 0)
+	{
+		buffer[i--] = flag_ch;
+		buffer[i--] = '0';
+	}
+
+	return (write_unsgnd(0, i, buffer, flags, width, precision, size));
 }
